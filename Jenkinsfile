@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Git checkout') {
             steps {
-                git 'https://github.com/betawins/Trading-UI.git'
+                git 'https://github.com/Emran-em/Trading-UI.git'
             }
         }
         stage('Install npm prerequisites') {
