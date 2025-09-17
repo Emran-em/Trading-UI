@@ -1,38 +1,70 @@
 pipeline {
-  agent any
-  tools {
-    nodejs "NodeJS14"   // :point_left: if need Use the new Node.js 20 installation
-  }
-  stages {
-    stage('Checkout') {
-      steps {
-        git url: 'https://github.com/Emran-em/Trading-UI.git', branch: 'master'
-      }
+    agent any
+
+    tools {
+        // 👇 Name must match what you configured under "Manage Jenkins → Global Tool Configuration → NodeJS"
+        nodejs "Nodejs14"
     }
-    stage('Install') {
-      steps {
-        sh '''
-          npm cache clean --force
-          rm -rf node_modules package-lock.json
-          npm install --omit=optional
-        '''
-      }
+
+    environment {
+        SKIP_PREFLIGHT_CHECK = 'true'   // skip eslint version mismatch checks
+        CI = 'false'                    // avoid treating warnings as errors
     }
-    stage('Test') {
-      steps {
-        sh 'npm test || echo ":warning: No tests found"'
-      }
-    }
-  stage('Build') {
-    steps {
-        withEnv(["CI=false"]) {
-            sh 'npm run build'
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout([$class: 'GitSCM',
+                    branches: [[name: '*/master']],
+                    userRemoteConfigs: [[url: 'https://github.com/Emran-em/Trading-UI.git']]
+                ])
+            }
+        }
+
+        stage('Clean Workspace') {
+            steps {
+                sh '''
+                    echo "🧹 Cleaning workspace..."
+                    rm -rf node_modules package-lock.json
+                    npm cache clean --force || true
+                '''
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh '''
+                    echo "📦 Installing dependencies..."
+                    npm install --legacy-peer-deps
+                '''
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh '''
+                    echo "🧪 Running tests..."
+                    npm test || echo "⚠️ No tests found"
+                '''
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh '''
+                    echo "🏗️ Building React app with Node.js $(node -v)..."
+                    npm run build
+                '''
+            }
         }
     }
-}
-  }
-  post {
-    success { echo ':white_check_mark: Node.js pipeline finished successfully.' }
-    failure { echo ':x: Node.js pipeline failed — check console output.' }
-  }
+
+    post {
+        success {
+            echo "✅ Pipeline completed successfully!"
+        }
+        failure {
+            echo "❌ Pipeline failed — check console output."
+        }
+    }
 }
