@@ -1,27 +1,26 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs "NodeJS14"   // ✅ Make sure Jenkins is configured with NodeJS under Global Tools
-    }
-
     stages {
         stage('Git checkout') {
             steps {
-                // ✅ Checkout from GitHub
-                git branch: 'master', url: 'https://github.com/betawins/Trading-UI.git'
+                git 'https://github.com/betawins/Trading-UI.git'
             }
         }
-
-        stage('Install') {
-    steps {
-        sh '''
-          rm -rf node_modules package-lock.json
-          npm install --legacy-peer-deps
-        '''
+        stage('Install npm prerequisites') {
+            steps {
+                sh '''
+                    rm -rf node_modules package-lock.json
+                    npm install
+                    npm audit fix || true
+                    npm run build
+                    cd build
+                    pm2 --name Trading-UI start npm -- start
+                '''
+            }
+        }
     }
 }
-
 
         stage('Build') {
             steps {
