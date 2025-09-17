@@ -13,14 +13,15 @@ pipeline {
             }
         }
 
-        stage('Install dependencies') {
-            steps {
-                sh '''
-                  rm -rf node_modules package-lock.json   # ✅ clean install
-                  npm install --omit=optional
-                '''
-            }
-        }
+        stage('Install') {
+    steps {
+        sh '''
+          rm -rf node_modules package-lock.json
+          npm install --legacy-peer-deps
+        '''
+    }
+}
+
 
         stage('Build') {
             steps {
