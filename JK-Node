@@ -3,7 +3,7 @@ pipeline {
 
     tools {
         // 👇 Name must match what you configured under "Manage Jenkins → Global Tool Configuration → NodeJS"
-        nodejs "NodeJS16"
+        nodejs "Nodejs16"
     }
 
     environment {
