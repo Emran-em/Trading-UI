@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/Emran-em/Trading-UI.git'
+                git branch: 'master', url: 'https://github.com/Emran-em/Trading-UI.git'
             }
         }
 
